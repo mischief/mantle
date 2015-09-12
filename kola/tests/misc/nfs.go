@@ -29,6 +29,13 @@ import (
 
 var plog = capnslog.NewPackageLogger("github.com/coreos/mantle", "kola/tests/misc")
 
+/*
+core@nfs1 /usr/lib/systemd/system $ ls rpc*
+rpc-statd-notify.service  rpc-statd.service  rpcbind.service  rpcbind.target
+core@nfs1 /usr/lib/systemd/system $ ls nfs*
+nfs-blkmap.service  nfs-blkmap.target  nfs-client.target  nfs-idmapd.service  nfs-mountd.service  nfs-server.service  nfs-utils.service
+*/
+
 // Test that the kernel NFS server and client work within CoreOS.
 func NFS(c platform.TestCluster) error {
 	/* server machine */
@@ -44,11 +51,11 @@ func NFS(c platform.TestCluster) error {
 					Command: "start",
 				},
 				config.Unit{
-					Name:    "rpc-mountd.service",
+					Name:    "nfs-mountd.service",
 					Command: "start",
 				},
 				config.Unit{
-					Name:    "nfsd.service",
+					Name:    "nfs-server.service",
 					Command: "start",
 				},
 			},
@@ -98,6 +105,10 @@ Options=defaults,noexec
 	c2 := config.CloudConfig{
 		CoreOS: config.CoreOS{
 			Units: []config.Unit{
+				config.Unit{
+					Name:    "rpcbind.service",
+					Command: "start",
+				},
 				config.Unit{
 					Name:    "rpc-statd.service",
 					Command: "start",
