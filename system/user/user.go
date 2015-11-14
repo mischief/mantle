@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// user is extension of the standard os.user package which supports groups.
+// Package user is extension of the standard os.user package which supports groups.
 package user
 
 import (
@@ -44,8 +44,8 @@ func Lookup(username string) (*User, error) {
 	return lookupGroup(u)
 }
 
-// LookupId looks up a user by userid.
-func LookupId(uid string) (*User, error) {
+// LookupID looks up a user by userid.
+func LookupID(uid string) (*User, error) {
 	u, err := user.LookupId(uid)
 	if err != nil {
 		return nil, err

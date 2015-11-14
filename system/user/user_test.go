@@ -68,12 +68,12 @@ func TestLookup(t *testing.T) {
 	compare(t, want, got)
 }
 
-func TestLookupId(t *testing.T) {
+func TestLookupID(t *testing.T) {
 	want, err := Current()
 	if err != nil {
 		t.Fatalf("Current: %v", err)
 	}
-	got, err := LookupId(want.Uid)
+	got, err := LookupID(want.Uid)
 	if err != nil {
 		t.Fatalf("LookupId: %v", err)
 	}

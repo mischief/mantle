@@ -18,6 +18,8 @@ import (
 	"runtime"
 )
 
+// PortageArch returns a string of the architecture for portage, based on the
+// architecture that this go code was compiled for.
 func PortageArch() string {
 	arch := runtime.GOARCH
 	switch arch {

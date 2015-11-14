@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// exec is extension of the standard os.exec package.
+// Package exec is extension of the standard os.exec package.
 // Adds a handy dandy interface and assorted other features.
 package exec
 
@@ -23,12 +23,19 @@ import (
 )
 
 var (
-	// for equivalence with os/exec
+	// ErrNotFound is the error resulting if a path search failed to find
+	// an executable file.
 	ErrNotFound = exec.ErrNotFound
-	LookPath    = exec.LookPath
+
+	// LookPath searches for an executable binary named file in the
+	// directories named by the PATH environment variable. If file contains
+	// a slash, it is tried directly and the PATH is not consulted. The
+	// result may be an absolute path or a path relative to the current
+	// directory.
+	LookPath = exec.LookPath
 )
 
-// An exec.Cmd compatible interface.
+// Cmd is an exec.Cmd compatible interface.
 type Cmd interface {
 	// Methods provided by exec.Cmd
 	CombinedOutput() ([]byte, error)
@@ -49,10 +56,14 @@ type ExecCmd struct {
 	*exec.Cmd
 }
 
+// Command creates a new ExecCmd from the give command name and arguments arg.
 func Command(name string, arg ...string) *ExecCmd {
 	return &ExecCmd{exec.Command(name, arg...)}
 }
 
+// Kill attempts to terminate the command, and waits for it to exit. It returns
+// an error if the command did not exit successfully or was not terminated by
+// SIGKILL.
 func (cmd *ExecCmd) Kill() error {
 	cmd.Process.Kill()
 
