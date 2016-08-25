@@ -61,7 +61,8 @@ var (
 	GCEOptions  = gcloudapi.Options{Options: &Options} // glue to set platform options from main
 	AWSOptions  = awsapi.Options{Options: &Options}    // glue to set platform options from main
 
-	TestParallelism int    //glue var to set test parallelism from main
+	TestParallelism int //glue var to set test parallelism from main
+	Debugger        bool
 	TAPFile         string // if not "", write TAP results here
 
 	testOptions = make(map[string]string, 0)
@@ -203,6 +204,10 @@ func RunTests(pattern, pltfrm string) error {
 	var passed, failed, skipped int
 	var wg sync.WaitGroup
 	var results resultSlice
+
+	if TestParallelism > 1 && Debugger {
+		return fmt.Errorf("cannot run debugger with parallelism")
+	}
 
 	// Avoid incurring cost of starting machine in getClusterSemver when
 	// either:
@@ -444,7 +449,15 @@ func RunTest(t *register.Test, pltfrm string) (err error) {
 	}()
 
 	// run test
-	return t.Run(tcluster)
+	err = t.Run(tcluster)
+	if err != nil {
+		if Debugger {
+			plog.Printf("Invoking debugger because of error: %v", err)
+			platform.Debugger(tcluster)
+		}
+	}
+
+	return err
 }
 
 // scpKolet searches for a kolet binary and copies it to the machine.

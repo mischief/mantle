@@ -15,8 +15,10 @@
 package platform
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -76,6 +78,50 @@ func Manhole(m Machine) error {
 	}
 
 	return nil
+}
+
+func listMachines(c Cluster) {
+	fmt.Printf("#  | %-16s | %-16s | ID\n", "Public IP", "Private IP")
+	for i, m := range c.Machines() {
+		fmt.Printf("%02d | %-16s | %-16s | %s\n", i, m.IP(), m.PrivateIP(), m.ID())
+	}
+}
+
+// Poor man's cluster debugger.
+func Debugger(c Cluster) {
+	fd := int(os.Stdin.Fd())
+	if !terminal.IsTerminal(fd) {
+		return
+	}
+
+	sc := bufio.NewScanner(os.Stdin)
+
+	fmt.Println("Welcome to the poor man's cluster debugger.")
+	fmt.Println("Type a machine number to connect to or press ^D to exit.\n")
+	listMachines(c)
+	fmt.Printf("> ")
+
+	machs := c.Machines()
+
+	for sc.Scan() {
+		i, err := strconv.ParseUint(sc.Text(), 10, 0)
+		if err != nil {
+			fmt.Printf("Invalid machine index %q: %v\n", sc.Text(), err)
+		} else {
+			if i >= uint64(len(machs)) {
+				fmt.Printf("Invalid machine index %d: out of range\n", i)
+			} else {
+				m := machs[int(i)]
+
+				if err := Manhole(m); err != nil {
+					fmt.Printf("Manhole error: %v\n", err)
+				}
+			}
+		}
+
+		listMachines(c)
+		fmt.Printf("> ")
+	}
 }
 
 // StreamJournal streams the remote system's journal to stdout.

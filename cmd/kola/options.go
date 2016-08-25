@@ -41,6 +41,7 @@ func init() {
 	bv := root.PersistentFlags().BoolVar
 
 	// general options
+	bv(&kola.Debugger, "debugger", false, "enable cluster debugger")
 	sv(&kolaPlatform, "platform", "qemu", "VM platform: qemu, gce, aws")
 	root.PersistentFlags().IntVar(&kola.TestParallelism, "parallel", 1, "number of tests to run in parallel")
 	sv(&kola.TAPFile, "tapfile", "", "file to write TAP results to")
